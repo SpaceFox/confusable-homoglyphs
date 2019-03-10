@@ -1,0 +1,127 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'maven'
+    id 'signing'
+}
+
+if(JavaVersion.current() < JavaVersion.VERSION_1_8){
+    throw new GradleException("This build must be run with java 8 or higher. Current version is " + JavaVersion.current() + ".\nYou should install jdk >= 1.8 from http://www.oracle.com/technetwork/java/javase/downloads and/or check your JAVA_HOME.")
+}
+
+group 'fr.spacefox'
+archivesBaseName = 'confusable-homoglyphs'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    junitVersion = '5.4.0'
+}
+
+dependencies {
+    compile group: 'org.jetbrains', name: 'annotations', version: '17.0.0'
+    
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.25.0'
+    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.25.0'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.ext.junitVersion
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.ext.junitVersion
+    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.ext.junitVersion
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.2"
+}
+jacocoTestCoverageVerification {
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'fr/spacefox/confusablehomoglyphs/Cli.class'
+            ])
+        })
+    }
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8
+            }
+        }
+    }
+}
+
+tasks.check.dependsOn jacocoTestReport
+tasks.check.dependsOn jacocoTestCoverageVerification
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'Confusable Homoglyphs'
+                packaging 'jar'
+                description ''
+                url 'https://github.com/SpaceFox/confusable-homoglyphs'
+
+                scm {
+                    connection 'scm:git:https://github.com/SpaceFox/confusable-homoglyphs.git'
+                    developerConnection 'scm:svn:https://github.com/SpaceFox/confusable-homoglyphs.git'
+                    url 'https://github.com/SpaceFox/confusable-homoglyphs.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'SpaceFox'
+                        name 'SpaceFox'
+                        email 'SpaceFox@users.noreply.github.com'
+                    }
+                }
+            }
+        }
+    }
+}
