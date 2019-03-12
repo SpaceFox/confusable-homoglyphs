@@ -11,7 +11,7 @@ if(JavaVersion.current() < JavaVersion.VERSION_1_8){
 
 group 'fr.spacefox'
 archivesBaseName = 'confusable-homoglyphs'
-version '1.0-SNAPSHOT'
+version '1.0.0'
 
 sourceCompatibility = 1.8
 
@@ -102,7 +102,7 @@ uploadArchives {
             pom.project {
                 name 'Confusable Homoglyphs'
                 packaging 'jar'
-                description ''
+                description 'A tool to deal with Unicode characters that looks like each other an can be confused - a.k.a confusable homoglyphs'
                 url 'https://github.com/SpaceFox/confusable-homoglyphs'
 
                 scm {
