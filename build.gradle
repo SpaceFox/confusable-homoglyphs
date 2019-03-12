@@ -11,7 +11,7 @@ if(JavaVersion.current() < JavaVersion.VERSION_1_8){
 
 group 'fr.spacefox'
 archivesBaseName = 'confusable-homoglyphs'
-version '1.0.0'
+version '1.0.1-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
