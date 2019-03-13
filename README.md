@@ -24,6 +24,82 @@ characters that might be confused with a character from some unicode blocks of y
 
 This library is compatible Java 8 and above. It should work with any JVM language that allows use of pure Java libraries.
 
+# How to use it in my project ?
+
+This library [is available on Maven Central](https://search.maven.org/artifact/fr.spacefox/confusable-homoglyphs).
+
+Import declarations:
+
+```xml
+<dependency>
+    <groupId>fr.spacefox</groupId>
+    <artifactId>confusable-homoglyphs</artifactId>
+    <version>1.0.1</version>
+</dependency>
+```
+
+```groovy
+compile group: 'fr.spacefox', name: 'confusable-homoglyphs', version: '1.0.1'
+```
+
+Then create a `Categories` or a `Confusable` object, from internal data or from external JSON:
+
+```java
+Categories categories = Categories.fromInternal();
+Confusables confusables = Confusables.fromInternal();
+// Or
+Categories categories = Categories.fromJson("/full/path/to/categories.json");
+Confusables confusables = fromJsons("/full/path/to/categories.json", "/full/path/to/confusables.json");
+// (Confusables uses Categories internally).
+```
+
+Please note: constructing these objects is quite long, you should keep them alive between two calls.
+
+# Public API
+
+See Javadoc for details.
+
+## `Categories`
+
+- `AliasAndCategory aliasAndCategory(String character)`
+- `AliasAndCategory aliasAndCategory(char character)`
+- `String alias(String character)`
+- `String alias(char character)`
+- `String category(String character)`
+- `String category(char character)`
+- `Set<String> uniqueAliases(String string)`
+
+With `AliasAndCategory` return type:
+
+- `public final String alias;`
+- `public final String category;`
+
+# `Confusables`
+
+- `boolean isMixedScript(String string, Collection<String> allowedAliases)`
+- `boolean isMixedScript(String string, String... allowedAliases)`
+- `boolean isMixedScript(String string)`
+- `List<Output> isConfusable(String string, boolean greedy, Collection<String> preferredAliases)`
+- `List<Output> isConfusable(String string, boolean greedy, String... preferredAliases)`
+- `List<Output> isConfusable(String string, boolean greedy)`
+- `List<Output> isConfusable(String string, Collection<String> preferredAliases)`
+- `List<Output> isConfusable(String string, String... preferredAliases)`
+- `List<Output> isConfusable(String string)`
+- `boolean isDangerous(String string, Collection<String> preferredAliases)`
+- `boolean isDangerous(String string, String... preferredAliases)`
+- `boolean isDangerous(String string)`
+
+With `Output` return type:
+
+- `public final String character;`
+- `public final String alias;`
+- `public final List<Homoglyphs> homoglyphs;`
+
+With `Homoglyphs` object:
+
+- `public final String sequence;`
+- `public final String name;`
+
 # Is the data up to date?
 
 Embedded data are up-to-date with Unicode 12.
