@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +40,7 @@ abstract class UsesJsonData<T> {
 
     boolean loadJson(String jsonFileName) {
         boolean initialized = false;
-        try (FileInputStream stream = new FileInputStream(new File(jsonFileName))) {
+        try (FileInputStream stream = new FileInputStream(jsonFileName)) {
             initialized = loadJson(stream);
         } catch (FileNotFoundException e) {
             LOGGER.severe("No " + jsonFileName + " data file found. Please regenerate it from CLI or download it.");
@@ -51,7 +52,7 @@ abstract class UsesJsonData<T> {
     }
 
     private boolean loadJson(InputStream stream) {
-        try (Reader reader = new InputStreamReader(stream)) {
+        try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             setData(new GsonBuilder()
                     .create()
                     .fromJson(reader, realDataType));
