@@ -102,7 +102,7 @@ With `Homoglyphs` object:
 
 # Is the data up to date?
 
-Embedded data are up-to-date with Unicode 12.
+Embedded data are up-to-date with Unicode 14.
 
 The unicode blocks aliases and names for each character are extracted from
 [this file](http://www.unicode.org/Public/UNIDATA/Scripts.txt) provided by the unicode consortium.
