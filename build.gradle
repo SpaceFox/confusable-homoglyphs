@@ -1,17 +1,17 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'jacoco'
-    id 'maven'
+    id 'maven-publish'
     id 'signing'
 }
 
-if(JavaVersion.current() < JavaVersion.VERSION_1_8){
+if (JavaVersion.current() < JavaVersion.VERSION_1_8) {
     throw new GradleException("This build must be run with java 8 or higher. Current version is " + JavaVersion.current() + ".\nYou should install jdk >= 1.8 from http://www.oracle.com/technetwork/java/javase/downloads and/or check your JAVA_HOME.")
 }
 
 group 'fr.spacefox'
 archivesBaseName = 'confusable-homoglyphs'
-version '1.0.1'
+version '1.1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
@@ -20,19 +20,20 @@ repositories {
 }
 
 ext {
-    junitVersion = '5.4.0'
+    junitVersion = '5.8.2'
+    mockitoVersion = '4.2.0'
 }
 
 dependencies {
-    compile group: 'org.jetbrains', name: 'annotations', version: '17.0.0'
-    
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    implementation group: 'org.jetbrains', name: 'annotations', version: '23.0.0'
 
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.25.0'
-    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.25.0'
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.ext.junitVersion
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.ext.junitVersion
-    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.ext.junitVersion
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
+
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: project.ext.mockitoVersion
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: project.ext.mockitoVersion
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.ext.junitVersion
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.ext.junitVersion
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.ext.junitVersion
     test {
         useJUnitPlatform()
         testLogging {
@@ -42,15 +43,15 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = "0.8.2"
+    toolVersion = '0.8.7'
 }
 jacocoTestCoverageVerification {
     afterEvaluate {
-        classDirectories = files(classDirectories.files.collect {
+        classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                     'fr/spacefox/confusablehomoglyphs/Cli.class'
             ])
-        })
+        }))
     }
     violationRules {
         rule {
@@ -64,68 +65,55 @@ jacocoTestCoverageVerification {
 tasks.check.dependsOn jacocoTestReport
 tasks.check.dependsOn jacocoTestCoverageVerification
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
-signing {
-    sign configurations.archives
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            if (!project.hasProperty('ossrhUsername') || !project.hasProperty('ossrhPassword')) {
-                return
-            }
-            
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                name 'Confusable Homoglyphs'
-                packaging 'jar'
-                description 'A tool to deal with Unicode characters that looks like each other an can be confused - a.k.a confusable homoglyphs'
-                url 'https://github.com/SpaceFox/confusable-homoglyphs'
-
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = 'Confusable Homoglyphs'
+                description = 'A tool to deal with Unicode characters that looks like each other an can be confused - a.k.a confusable homoglyphs'
+                url = 'https://github.com/SpaceFox/confusable-homoglyphs'
                 scm {
-                    connection 'scm:git:https://github.com/SpaceFox/confusable-homoglyphs.git'
-                    developerConnection 'scm:svn:https://github.com/SpaceFox/confusable-homoglyphs.git'
-                    url 'https://github.com/SpaceFox/confusable-homoglyphs.git'
+                    connection = 'scm:git:https://github.com/SpaceFox/confusable-homoglyphs.git'
+                    developerConnection = 'scm:svn:https://github.com/SpaceFox/confusable-homoglyphs.git'
+                    url = 'https://github.com/SpaceFox/confusable-homoglyphs.git'
                 }
 
                 licenses {
                     license {
-                        name 'The Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
 
                 developers {
                     developer {
-                        id 'SpaceFox'
-                        name 'SpaceFox'
-                        email 'SpaceFox@users.noreply.github.com'
+                        id = 'SpaceFox'
+                        name = 'SpaceFox'
+                        email = 'SpaceFox@users.noreply.github.com'
                     }
                 }
             }
         }
     }
+
+    repositories {
+        maven {
+            credentials {
+                username = project.ossrhUsername
+                password = project.ossrhPassword
+            }
+            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
