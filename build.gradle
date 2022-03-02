@@ -10,10 +10,7 @@ if (JavaVersion.current() < JavaVersion.VERSION_1_8) {
 }
 
 group 'fr.spacefox'
-archivesBaseName = 'confusable-homoglyphs'
-version '1.1.0'
-
-sourceCompatibility = 1.8
+version '1.1.1'
 
 repositories {
     mavenCentral()
@@ -74,6 +71,9 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             pom {
+                groupId = project.group
+                name = project.name
+                from components.java
                 name = 'Confusable Homoglyphs'
                 description = 'A tool to deal with Unicode characters that looks like each other an can be confused - a.k.a confusable homoglyphs'
                 url = 'https://github.com/SpaceFox/confusable-homoglyphs'
